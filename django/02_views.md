@@ -162,6 +162,87 @@ Trueだと渡し，Falseだと渡さない．
 
 
 # FormView
+ユーザからの入力を受け付けたいときに使用する．
+ただし，モデルと同様のデータを使用したいなら，後述のCreateViewやUpdateViewを使用．
+
+## Formの作成
+FormViewを使用するにあたり，まずはFormを作成する必要がある．
+これを利用することで，自動的なHTMLへの配置，ある程度のバリデーションをしてくれる．
+
+```python
+from django import forms
+
+class UserForm(forms.Form):
+    name = forms.CharField(max_length=32, label='名前')
+    age = forms.IntegerField(label='年齢')
+```
+
+このようなFormを作成することで，文字列のフィールドと数字のフィールドを用意することができる．
+
+以下のようなフィールドがある．
+- BooleanField
+    - widget: type="checkbox"として生成．
+- CharField
+    - widget: type="text"として生成．
+    - max_length, min_length：最大文字数，最小文字数を指定．
+    - strip=True：空白で切り出すことができる．
+    - empty_value: 
+- ChoiceField
+    - widget: type="select"で生成．単一回答のみ．
+
+    ※example
+    ```python
+    from django import forms
+    from django.db import models
+
+
+    class FoodChoices(models.TextChoices):
+        BREAD = 'bread', 'パン'
+        RICE = 'rice', 'ご飯'
+        FISH = 'fish', '魚'
+        MEAT = 'meat', '肉'
+
+
+    class FoodForm(forms.Form):
+        food = forms.fields.ChoiceField(
+            choices=FoodChoices.choices,
+            required=True,
+            label='食べ物',
+            # widget=forms.widgets.Select,
+        )
+    ```
+- DateField
+    - widget: type="date"で生成．
+    - input_formats: 好きな形に変換
+- DateTimeField
+    - widget: type="datetime-local"で生成．
+    - input_formats: 好きな形に変換
+- EmailField
+    - widget: type="email"で生成．
+    - max_length, min_lengthで文字数を指定できる．
+- FileField
+    - widget: type="file"で生成．
+- FloatField
+- GenericIPAddressField
+- ImageField
+    - widget: type="file"で生成．
+    - Pillowを使用するため，PILをinstallしておきましょう．
+- ImtegerField
+    - widget: type="number"で生成．
+    - max_value, min_valueで数の制限ができる．
+- JSONField
+    - widget: <textarea></textarea>で生成．
+- MultipleChoiceField
+    - widget: type="select"で生成．複数回答可．
+- NullBooleanField
+    - widget: type="???"で生成．
+    - Yes/No/回答しないの3パターンなど．
+- TimeField
+- URLField
+- ComboField
+
+
+
 # CreateView
 # DetailView
 # UpdateView

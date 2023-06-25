@@ -8,6 +8,6 @@
 
 
 ## 今後の予定
-
+- FastAPI
 - angular(javascriptフロントフレームワーク)
 - 情報処理安全確保支援士
