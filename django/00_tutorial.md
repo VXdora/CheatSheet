@@ -167,7 +167,7 @@ pathnameでurlからのアクセスができます．
 domain.co.jp/fooでアクセスしたいならば，pathnameはfooにしましょう．
 
 nameはテンプレートからurlを用いて簡単にルーティングをすることができるので，適切な名前で設定しましょう．
-詳細は[urls.md](/cheatsheet/django/urls.md)を参照．
+詳細は[urls.md](django/01_urls.md)を参照．
 
 ## Viewの設定
 Viewは表示部の設定（バックエンド）ができます．
@@ -245,3 +245,8 @@ LAN上に公開したいなら，
 bash$ python manage.py runserver ipアドレス:ポート番号
 ```
 で実行します．
+
+**注意！**
+
+runserverはあくまで，開発用，デバッグ用の機能です．
+本番環境にデプロイする際には，gunicornやuvicornを使用しましょう．
