@@ -10,7 +10,7 @@ width は，要素の幅を指定します．
 
 ex1. `width: 400px;`
 
-ex2. width: 40%;
+ex2. `width: 40%;`
 
 ## height
 
@@ -18,9 +18,9 @@ height は，要素の高さを指定します．
 固定値は px, 画面幅に応じて変更させたいなら vh 指定がおすすめ．
 ただし，指定しなければ flex になるので，よほどのことがない限りは指定しないのが吉．
 
-ex1. height: 400px;
+ex1. `height: 400px;`
 
-ex2. height: 100vh;
+ex2. `height: 100vh;`
 
 ## margin, padding
 
