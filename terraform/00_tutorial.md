@@ -119,19 +119,58 @@ resource "aws_instance" "test" {
 
 #### 使用できるデータ型
 空いているところは気が向いたら書く．
+- string...Unicode文字列.
 
-| -- | -- |
-| string | Unicode文字列 |
-| number | 整数＆小数 |
-| bool | true / false |
-| -- | -- |
-| object | キーバリュー型 |
-| tuple | |
-| -- | -- |
-| list | |
-| map | |
-| set | |
-| -- | -- |
+- number...整数＆小数．
+
+- bool...true / false.
+
+- object...キーバリュー型.
+```HCL2
+variabe "obj_test" {
+    type = object({
+        name = string
+        age = number
+    })
+    default = {
+        name = "Alice"
+        age = 18
+    }
+}
+
+# 参照時
+uname = var.obj_test.name
+```
+
+- tuple 
+```HCL2
+variable "tuple_test" {
+    type = tuple([
+        string, number
+    ])
+    default = ["Alice", 18]
+}
+
+# 参照時
+uname = var.tuple_test[0]
+```
+
+- list 
+
+- map 
+
+- set
+
+#### 外部参照方法
+- 環境変数...`TF_VAR_<NAME>`で環境変数にあらかじめ登録．
+
+- 変数ファイル...`terraform.tfvars`という名前のファイルに変数を書き込む．
+
+- コマンド引数...コマンド引数で指定．
+`-var <NAME>=<VALUE>`や`-var-file <FILENAME>`で指定．
+
+
+なお，下に書いたものほど上書きされる．（下優先）
 
 
 ### terraformブロック
@@ -140,6 +179,10 @@ terraform全体の設定を行う．
 ### providerブロック
 どこのproviderを使用するのか指定．
 AzureなのかAWSなのか，とか．
+
+以下指定できるやつ．
+- profile...AWSやAzureにアクセスするためのプロファイル．
+- region...デフォルトリージョンを指定．
 
 ### dataブロック
 Terraformで管理していないリソースの取り込みを扱う．
@@ -151,4 +194,6 @@ Terraformで管理するリソースを記述していくブロック．
 ### output
 外部から参照可能．
 
-
+## ファイル構成について
+**Windowsだと，`C:/Users/<UserName>`配下のディレクトリでないと動かない．**
+また，サブディレクトリは反映されないため，プロジェクトのルートディレクトリに全て配置する必要がある．
