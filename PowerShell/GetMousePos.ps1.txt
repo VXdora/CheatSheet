@@ -1,0 +1,36 @@
+# Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+
+# 部品のインポート
+Add-Type -AssemblyName System.Windows.Forms
+
+# フォームの作成
+$form = New-Object System.Windows.Forms.Form
+$form.Text = "ウィンドウサンプル"
+$form.Size = New-Object System.Drawing.Size(200, 100)
+$form.TopMost = $true
+    
+# タイマーの作成
+$timer = New-Object System.Windows.Forms.Timer
+$timer.Interval = 100
+$timer.Add_Tick({
+    # マウス関連の操作
+    $buttonPressed = [System.Windows.Forms.Control]::MouseButtons
+    if ($buttonPressed) {
+        $currentPos = [System.Windows.Forms.Cursor]::Position
+        $label.Text = "X: $($currentPos.X), Y: $($currentPos.Y)"
+    }
+})
+$timer.Start()
+$form.Add_Closing({
+    $timer.Stop()
+})
+    
+# ラベルの作成
+$label = New-Object System.Windows.Forms.Label
+$label.AutoSize = $true
+$label.Location = New-Object System.Drawing.Point(10, 10)
+$label.Font = New-Object System.Drawing.Font("Arial", 16, [System.Drawing.FontStyle]::Regular)
+$form.Controls.Add($label)
+
+# メインのイベントループを確立
+[Windows.Forms.Application]::Run($form)
