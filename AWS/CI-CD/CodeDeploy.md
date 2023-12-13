@@ -45,6 +45,7 @@
 ## appspec
 - appspecを記述することでデプロイルールを決めることができる
     - どのファイルをどこに配置するか？
+    - 起動時に何を実行するか？
 
 
 ### EC2へのデプロイ
@@ -63,14 +64,85 @@
             destination: /etc/nginx
         ```
 - `permissions`: アクセス権限の付与
+    - `object`にはファイルパスを記述
+    - `pattern`には正規表現で記述できる
+        - `*.sh`で指定することで，`object`フォルダは以下のファイル全てに権限を付与することができる
+    - `except`で上記ファイルから権限を付与したくないファイルを除外できる
+        - `["test.php", "test2.php"]`のように記述
+    - `owner`, `group`にはファイルを所持するユーザ，グループを指定
+        - `ec2-user`とか`apache`とか
+    - `mode`でアクセス権限を指定
+        - `744`とか`655`とか
+        - `chmod`に従う
+    - `type`には権限を適用するオブジェクトのタイプを指定
+        - `file`か`directory`
+    - 以下のように記述
+        ```YAML
+       permissions:
+          - object: object-specification
+            pattern: pattern-specification
+            except: exception-specification
+            owner: owner-account-name
+            group: group-name
+            mode: mode-specification
+            acls: 
+              - acls-specification 
+            context:
+            user: user-specification
+            type: type-specification
+            range: range-specification
+            type:
+              - object-type
 
-```YAML
-version: 0.0
-os: operating-system-name
-files:
-  source-destination-files-mappings
-permissions:
-  permissions-specifications
-hooks:
-  deployment-lifecycle-event-mappings
-```
+          - object: ...
+        ```
+- `hooks`: 各フェーズにおける命令を実行
+    - 以下各フェーズの説明，どのデプロイに対応しているか
+        | フェーズ名 | フェーズの説明 |
+        | -- | -- |
+        | ApplicationStop | 以前に正常にデプロイされたアプリケーションの停止時のフェーズ |
+        | DownloadBundle | アプリケーションリビジョンファイルを一時フォルダの展開時のフェーズ |
+        | BeforeInstall | ファイルの復号，現在のバージョンのバックアップの作成 |
+        | Install | リビジョンファイルを一時的な場所から最終的な宛先へコピー |
+        | AfterInstall | アプリケーションの設定やファイルのアクセス許可の変更などで利用できる |
+        | ApplicationStart | |
+        | ValidateService | |
+        | BeforeBlockTraffic | |
+        | BlockTraffic | |
+        | AfterBlockTraffic | |
+        | AllowTraffic | |
+        | AfterAllowTraffic| |
+    - `location`: 実行するスクリプトのパスを指定
+    - `timeout`: タイムアウトする時間（秒）
+    - `runas`: 実行するユーザ権限（省略可）
+    - 以下のように記述
+        ```YAML
+        hooks:
+          AfterInstall:
+            - location: Scripts/RunResourceTests.sh
+              timeout: 180
+            - location: Scripts/PostDeploy.sh
+              timeout: 180
+        ```
+        - この例だと，`AfterInstall`ステージ中に`Scripts/RunResourceTests.sh`スクリプトが実行される．
+            - 180秒以上かかった場合はデプロイが失敗する
+- 全体での記述例
+    ```YAML
+    version: 0.0
+    os: operating-system-name
+    files:
+      - source: sample.jar
+        destination: /var/app
+    permissions:
+      - object: /opt/app/bin
+        pattern: "*.sh"
+        owner: ec2-user
+        group: ec2-user
+        mode: 744
+        type:
+          - file
+    hooks:
+      AfterInstall:
+        - location: Scripts/RunResourceTests.sh
+          timeout: 180
+    ```
