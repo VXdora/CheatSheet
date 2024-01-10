@@ -3,6 +3,7 @@
 ## 目次
 
 ## 概要
+![test](./images/pipeline-image.png)
 
 ## KMSキーの作成
 - S3を暗号化するためにKMSキーを作成
@@ -390,3 +391,6 @@
         - ターゲットタイプ: `EventBridgeイベントバス`, `別のアカウントまたはリージョンのイベントバス`
         - ターゲットとしてのイベントバス: `arn:aws:events:ap-northeast-1:<本番環境アカウントのID>:event-bus/default`
         - ロールは先ほど作成したものを割り当てる
+
+## 参考
+- [AWS CodePipelineをクロスアカウントで作成する際の権限図](https://zenn.dev/takamin55/articles/66ea83a47f7c08)
