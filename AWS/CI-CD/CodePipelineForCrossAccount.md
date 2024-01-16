@@ -134,7 +134,7 @@
     ```
 - 以下コマンドをCloudShellから入力し，BuildProjectを作成
     ```Bash
-    aws codebuild create-project -cli-input-json file://build.json
+    aws codebuild create-project --cli-input-json file://build.json
     ```
 
 
