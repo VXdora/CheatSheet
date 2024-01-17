@@ -198,74 +198,77 @@
 - jsonファイルを作成し，コマンド実行
     ```JSON
     {
-        "roleArn": "arn:aws:iam::<本番環境アカウントのID>:role/<CodePipelineのロール>",
-        "name": "foo",
-        "artifactStore": {
-            "type": "S3",
-            "location": "<s3のバケット>",
-            "encryptionKey": {
-                "id": "arn:aws:kms:ap-northeast-1:<本番環境アカウントのID>:key/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-                "type": "KMS"
-            }
-        },
-        "stages": [
-            {
-                "name": "Source",
-                "actions": [
-                    {
-                        "inputArtifacts": [],
-                        "name": "Source",
-                        "actionTypeId": {
-                            "category": "Source",
-                            "owner": "AWS",
-                            "version": "1",
-                            "provider": "CodeCommit"
-                        },
-                        "outputArtifacts": [
-                            {
-                                "name": "SourceArtifact"
-                            }
-                        ],
-                        "configuration": {
-                            "PollForSourceChanges": "false",
-                            "BranchName": "prd",
-                            "RepositoryName": "<Repository-Name>"
-                        },
-                        "roleArn": "arn:aws:iam:<開発環境アカウントのID>:role/<開発環境アカウントのCodeCommitのロール>"
-                    }
-                ]
+        "pipeline": {
+            "roleArn": "arn:aws:iam::<本番環境アカウントのID>:role/<CodePipelineのロール>",
+            "name": "foo",
+            "artifactStore": {
+                "type": "S3",
+                "location": "<s3のバケット>",
+                "encryptionKey": {
+                    "id": "arn:aws:kms:ap-northeast-1:<本番環境アカウントのID>:key/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+                    "type": "KMS"
+                }
             },
-            {
-                "name": "Build",
-                "actions": [
-                    {
-                        "name": "Build",
-                        "inputArtifacts": [
-                            {
-                                "name": "SourceArtifact"
-                            }
-                        ],
-                        "actionTypeId": {
-                            "category": "Build",
-                            "owner": "AWS",
-                            "version": "1",
-                            "provider": "CodeBuild"
-                        },
-                        "outputArtifacts": [
-                            {
-                                "name": "BuildArtifact"
-                            }
-                        ],
-                        "configuration": {
-                            "BatchEnabled": "true",
-                            "CombineArtifacts": "true",
-                            "ProjectName": "<CodeBuildのプロジェクト名>",
-                            "PrimarySource": "<S3のバケット名>"
+            "stages": [
+                {
+                    "name": "Source",
+                    "actions": [
+                        {
+                            "inputArtifacts": [],
+                            "name": "Source",
+                            "actionTypeId": {
+                                "category": "Source",
+                                "owner": "AWS",
+                                "version": "1",
+                                "provider": "CodeCommit"
+                            },
+                            "outputArtifacts": [
+                                {
+                                    "name": "SourceArtifact"
+                                }
+                            ],
+                            "configuration": {
+                                "PollForSourceChanges": "false",
+                                "BranchName": "prd",
+                                "RepositoryName": "<Repository-Name>"
+                            },
+                            "roleArn": "arn:aws:iam:<開発環境アカウントのID>:role/<開発環境アカウントのCodeCommitのロール>"
                         }
-                    }
-                ]
-            },
-        ]
+                    ]
+                },
+                {
+                    "name": "Build",
+                    "actions": [
+                        {
+                            "name": "Build",
+                            "inputArtifacts": [
+                                {
+                                    "name": "SourceArtifact"
+                                }
+                            ],
+                            "actionTypeId": {
+                                "category": "Build",
+                                "owner": "AWS",
+                                "version": "1",
+                                "provider": "CodeBuild"
+                            },
+                            "outputArtifacts": [
+                                {
+                                    "name": "BuildArtifact"
+                                }
+                            ],
+                            "configuration": {
+                                "BatchEnabled": "true",
+                                "CombineArtifacts": "true",
+                                "ProjectName": "<CodeBuildのプロジェクト名>",
+                                "PrimarySource": "<S3のバケット名>"
+                            }
+                        }
+                    ]
+                },
+            ]
+        "version": 1
+        }
     }
     ```
 - 以下コマンド実行
