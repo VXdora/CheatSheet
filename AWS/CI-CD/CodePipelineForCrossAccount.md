@@ -22,6 +22,9 @@
 - 以下構成図
 ![test](./images/pipeline-image.png)
 
+## 注意書き(メモ)
+- 開発環境をterraformで構築し，開発環境で`terraform destroy`すると，本番環境のS3のバケットポリシーが勝手に変更される
+
 ## KMSキーの作成
 - S3を暗号化するためにKMSキーを作成
     - STEP1:
