@@ -24,6 +24,8 @@
 
 ## 注意書き(メモ)
 - 開発環境をterraformで構築し，開発環境で`terraform destroy`すると，本番環境のS3のバケットポリシーが勝手に変更される
+- CodePipelineでCodeBuildがバッチビルドだと失敗します
+    - 単一ビルドなら成功
 
 ## KMSキーの作成
 - S3を暗号化するためにKMSキーを作成
@@ -56,8 +58,8 @@
                 },
                 "Action": "s3:*",
                 "Resource": [
-                    "arn:aws:s3:::bucket",
-                    "arn:aws:s3:::bucket/*"
+                    "arn:aws:s3:::<作成したbucket名>",
+                    "arn:aws:s3:::<作成したbucket名>/*"
                 ]
             }
         ]
@@ -71,6 +73,7 @@
     - 以下のアクセス権限が必要．
         - ログを保存するためのCloudWatchへのアクセス権限
         - アーティファクトの取得・保存に必要なS3へのアクセス権限
+        - KMSへのアクセス権限
         - その他，必要ならCodeDeploy, ECSなどへのアクセス権限
 - 以下はCodeBuildに割り当てるロール
     ```JSON
@@ -93,7 +96,23 @@
                     "s3:GetObject",
                     "s3:GetObjectVersion"
                 ],
-                "Resource": "*"
+                "Resource": [
+                    "arn:aws:s3:::<作成したbucket名>",
+                    "arn:aws:s3:::<作成したbucket名>/*"
+                ]
+            },
+            {
+                "Effect": "Allow",
+                "Action": [
+                    "kms:DescribeKey",
+                    "kms:GenerateDataKey",
+                    "kms:Encrypt",
+                    "kms:ReEncrypt*",
+                    "kms:Decrypt"
+                ],
+                "Resource": [
+                    "arn:aws:kms:ap-northeast-1:<本番環境アカウントのID>:key/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                ]
             }
         ]
     }
@@ -121,8 +140,8 @@
 - `serviceRole`には先ほど作成したロールを，`encryptionKey`には作成したKMSキーのarnを入力
     ```JSON
     {
-        "name": "foo",
-        "description": "foo",
+        "name": "<設定したいCodeBuildのプロジェクト名>",
+        "description": "<設定したいCodeBuildの説明>",
         "source": {
             "type": "CODEPIPELINE",
             "buildspec": "buildspec.yml"
@@ -152,6 +171,7 @@
         - 開発環境のアカウントへのAssumeRole
         - アーティファクトの取得・保存に必要なS3へのアクセス権限
         - CodeBuildへのアクセス権限
+        - KMSへのアクセス権限
         - その他，必要ならCodeDeploy, ECSなどへのアクセス権限
 - 以下はCodePipelineに割り当てるロール
     ```JSON
@@ -171,7 +191,10 @@
                     "s3:GetObjectVersion",
                     "s3:GetBucketVersioning"
                 ],
-                "Resource": "*",
+                "Resource": [
+                    "arn:aws:s3:::<作成したbucket名>",
+                    "arn:aws:s3:::<作成したbucket名>/*"
+                ]
             },
             {
                 "Effect": "Allow",
@@ -179,8 +202,24 @@
                     "codebuild:BatchGetBuilds",
                     "codebuild:StartBuild"
                 ],
-                "Resource": "*",
+                "Resource": [
+                    "arn:aws:codebuild:ap-northeast-1:<本番環境AWSアカウントのID>:project/<CodeBuildのプロジェクト名>"
+                ],
+            },
+            {
+                "Effect": "Allow",
+                "Action": [
+                    "kms:DescribeKey",
+                    "kms:GenerateDataKey",
+                    "kms:Encrypt",
+                    "kms:ReEncrypt*",
+                    "kms:Decrypt"
+                ],
+                "Resource": [
+                    "arn:aws:kms:ap-northeast-1:<本番環境アカウントのID>:key/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                ]
             }
+ 
         ]
     }
     ```
@@ -267,8 +306,8 @@
                                 }
                             ],
                             "configuration": {
-                                "BatchEnabled": "true",
-                                "CombineArtifacts": "true",
+                                "BatchEnabled": "false",
+                                "CombineArtifacts": "false",
                                 "ProjectName": "<CodeBuildのプロジェクト名>",
                                 "PrimarySource": "<S3のバケット名>"
                             }
@@ -342,13 +381,20 @@
     - 手動で実行する場合には関係ないです
 - パイプラインの変更の検出に`EventBridge`を使用
 - 別アカウントに送信するために，`EventBridge Bus`を使用
+- **イベントバス送信先に`default`を使用していますが，可能ならイベントバスを新たに作成してそこにイベントを設定した方がよい**
 
 ### 本番環境側の設定
+- 受信するイベントバスの作成
+    - `EventBridge` > `イベントバス` > 中段`イベントバスを作成`
+    - `リソースベースのポリシー`で`テンプレートをロード`
+        - とりあえずは`Sid`が`AllowAccoutToPutEvents`のデータを編集
+            - `Principal`の`<ACCOUNT_ID>`に開発環境のAWSアカウントのIDを入力
+        - それ以外の`Sid`のデータは削除
+        - `###`から始まる行を削除
 - イベントバスの設定
     - 開発環境からのイベントを受信する許可を設定
-    - `EventBridge` > `イベントバス` > `default`から，`アクセス許可を管理`をクリック
+    - `EventBridge` > `イベントバス` > 受信したいイベントバスから，`アクセス許可を管理`をクリック
     - 以下を入力
-        - `default`は変更した方が無難？
         ```JSON
         {
             "Version": "2012-10-17",
@@ -359,7 +405,7 @@
                         "AWS": "arn:aws:iam::<開発環境アカウントのID>:root"
                     },
                     "Action": "events:PutEvents",
-                    "Resource": "arn:aws:events:ap-northeast-1:<本番環境アカウントのID>:event-bus/default"
+                    "Resource": "arn:aws:events:ap-northeast-1:<本番環境アカウントのID>:event-bus/<受信したいイベントバス名>"
                 }
             ]
         }
@@ -384,7 +430,7 @@
                 {
                     "Action": "events:PutEvents",
                     "Effect": "Allow",
-                    "Resource": "arn:aws:events:ap-northeast-1:<本番環境アカウントのID>:event-bus/default"
+                    "Resource": "arn:aws:events:ap-northeast-1:<本番環境アカウントのID>:event-bus/<受信させたいイベントバス名>"
                 }
             ]
         }
@@ -422,7 +468,7 @@
         ```
     - ターゲットは以下の通り
         - ターゲットタイプ: `EventBridgeイベントバス`, `別のアカウントまたはリージョンのイベントバス`
-        - ターゲットとしてのイベントバス: `arn:aws:events:ap-northeast-1:<本番環境アカウントのID>:event-bus/default`
+        - ターゲットとしてのイベントバス: `arn:aws:events:ap-northeast-1:<本番環境アカウントのID>:event-bus/<受信させたいイベントバス名>`
         - ロールは先ほど作成したものを割り当てる
 
 ## 参考
