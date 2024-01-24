@@ -277,8 +277,8 @@
                             ],
                             "configuration": {
                                 "PollForSourceChanges": "false",
-                                "BranchName": "prd",
-                                "RepositoryName": "<Repository-Name>"
+                                "BranchName": "<ブランチ名>",
+                                "RepositoryName": "<レポジトリ名>"
                             },
                             "roleArn": "arn:aws:iam:<開発環境アカウントのID>:role/<開発環境アカウントのCodeCommitのロール>"
                         }
