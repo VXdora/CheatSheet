@@ -204,7 +204,7 @@
                 ],
                 "Resource": [
                     "arn:aws:codebuild:ap-northeast-1:<本番環境AWSアカウントのID>:project/<CodeBuildのプロジェクト名>"
-                ],
+                ]
             },
             {
                 "Effect": "Allow",
@@ -280,7 +280,7 @@
                                 "BranchName": "<ブランチ名>",
                                 "RepositoryName": "<レポジトリ名>"
                             },
-                            "roleArn": "arn:aws:iam:<開発環境アカウントのID>:role/<開発環境アカウントのCodeCommitのロール>"
+                            "roleArn": "arn:aws:iam::<開発環境アカウントのID>:role/<開発環境アカウントのCodeCommitのロール>"
                         }
                     ]
                 },
@@ -370,7 +370,8 @@
                         "arn:aws:iam::<開発環境アカウントのID>:root",
                         "arn:aws:iam::<本番環境アカウントのID>:root"
                     ]
-                }
+                },
+                "Action": "sts:AssumeRole"
             }
         ]
     }
