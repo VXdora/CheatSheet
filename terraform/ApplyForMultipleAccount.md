@@ -40,6 +40,24 @@ Azureも（たぶん）同じ．
     ``` 
     - プロファイル名は何でもよいが，ここでのプロファイル名は使用するので，記憶しておくこと．
     なお，分からなくなっても，`~/.aws/`に配置されているので，見ようと思えば見られる．
+        - `~/.aws/credentials`
+            ```
+            [account-dev]
+            aws_access_key_id = ABCDEFGHIJKLMN
+            aws_secret_access_key = kldjfAGAFlajfdl3243ADFa
+            [account-prd]
+            aws_access_key_id = ABCDEFGHIJKLMN
+            aws_secret_access_key = kldjfAGAFlajfdl3243ADFa
+            ```
+        - `~/.aws/config`
+            ```
+            [profile account-dev]
+            region = ap-northeast-1
+            output = json
+            [profile account-prd]
+            region = ap-northeast-1
+            output = json
+            ```
 <h3>ここでは，作成したアカウントを<span style="color: red">account-dev</span>と<span style="color: red">account-prd</span>とします．</h3>
 
 ## terraformでアカウント指定をする
