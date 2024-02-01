@@ -84,7 +84,7 @@ Azureも（たぶん）同じ．
             aws = aws.dev               # aws.<providerのalias>で指定
         }
     }
-    module "dev_module" {
+    module "prd_module" {
         source      = "../modules"
         env         = var.prd_env
         providers   = {
