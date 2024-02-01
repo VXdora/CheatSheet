@@ -23,6 +23,8 @@
 ![test](./images/pipeline-image.png)
 
 ## 注意書き(メモ)
+- terraformで片側ずつ作成すると，「リソースが見つからない」エラーを返されます．
+    - [ここ](/terraform/ApplyForMultipleAccount.md)を参考に，terraformで複数アカウントへの同時デプロイを検討してください
 - 開発環境をterraformで構築し，開発環境で`terraform destroy`すると，本番環境のS3のバケットポリシーが勝手に変更される
 - CodePipelineでCodeBuildがバッチビルドだと失敗します
     - 単一ビルドなら成功
