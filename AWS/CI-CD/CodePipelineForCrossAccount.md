@@ -1,4 +1,4 @@
-# クロスアカウントでのコードデプロイメモ
+# クロスアカウントでのCodePipelineメモ
 
 ## 目次
 - [概要](#概要)
@@ -8,6 +8,10 @@
 - [CodePipelineの作成(本番環境)](#codepipelineの作成本番環境)
 - [CodeCommitのロール変更(開発環境)](#codecommitのロール変更開発環境)
 - [検出，パイプライン起動の自動化](#検出パイプライン起動の自動化)
+
+## ソースコード
+terraformによるソースコードは[ここ](https://github.com/VXdora/CrossAccountPipelineTemplate)に配置しています．
+なお，[terraformによる複数アカウントへの同時apply](https://github.com/VXdora/CheatSheet/blob/main/terraform/ApplyForMultipleAccount.md)も参考のこと．
 
 
 ## 概要
@@ -335,7 +339,7 @@
         "Statement": [
             {
                 "Effect": "Allow",
-                "Action": "s3*",
+                "Action": "s3:*",
                 "Resource": [
                     "arn:aws:s3:::<開発環境アカウントのs3バケット>",
                     "arn:aws:s3:::<本番環境アカウントのs3バケット>"
