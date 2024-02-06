@@ -470,7 +470,7 @@ terraformによるソースコードは[ここ](https://github.com/VXdora/S3eoLc
                 "referenceType": ["branch"]
             },
             "detail-type": [ "CodeCommit Repository State Change" ],
-            "resource": ["<CodeCommitのレポジトリ名>"],
+            "resources": ["<CodeCommitのレポジトリ名>"],
             "source": ["aws.codecommit"]
         }
         ```
